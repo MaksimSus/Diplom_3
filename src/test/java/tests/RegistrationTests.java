@@ -74,7 +74,7 @@ public class RegistrationTests {
                     .then()
                     .statusCode(202);
         } else {
-            Allure.step("Не удалось получить токен для удаления пользователя. Пользователь мог не создаться.");
+            Allure.step("Failed to get token to delete user. User may not have been created.");
         }
     }
 
@@ -99,7 +99,7 @@ public class RegistrationTests {
 
         // Проверка редиректа
         String expectedUrl = "https://stellarburgers.nomoreparties.site/login";
-        assertEquals("Пользователь не был перенаправлен на страницу логина после регистрации",
+        assertEquals("The user was not redirected to the login page after registration",
                 expectedUrl, driver.getCurrentUrl());
     }
 
@@ -122,6 +122,6 @@ public class RegistrationTests {
 
         // Ожидаемое сообщение
         String expectedError = "Некорректный пароль";
-        assertEquals("Сообщение об ошибке не совпадает с ожидаемым", expectedError, actualError);
+        assertEquals("The error message does not match what was expected", expectedError, actualError);
     }
 }

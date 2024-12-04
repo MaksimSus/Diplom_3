@@ -1,8 +1,10 @@
 package praktikum;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
 
 public class WebDriverCreator {
 
@@ -20,7 +22,12 @@ public class WebDriverCreator {
         }
 
         switch (browser) {
-            case "yandex":
+           case "yandex":// {
+//                WebDriverManager.chromedriver().browserVersion("128").setup();
+//                ChromeOptions options = new ChromeOptions();
+//                options.setBinary("C:/Users/susma/AppData/Local/Yandex/YandexBrowser/Application/browser.exe");
+//                return new ChromeDriver(options);
+//            }
                 return createYandexDriver();
             case "chrome":
             default:
@@ -33,12 +40,19 @@ public class WebDriverCreator {
         return new ChromeDriver(options);
     }
 
+
     private static WebDriver createYandexDriver() {
-        System.setProperty("webdriver.chrome.driver",
-                String.format("%s/%s", System.getenv("C:\\WebDriver\\bin"),
-                        System.getenv("C:\\WebDriver\\chromedriver-win64\\chromedriver.exe")));
+        System.setProperty("webdriver.chrome.driver", "C:/WebDriver/chromedriver-win64/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        options.setBinary(System.getenv("C:\\Users\\susma\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe"));
+        options.setBinary("C:/Users/susma/AppData/Local/Yandex/YandexBrowser/Application/browser.exe");
         return new ChromeDriver(options);
+
+//    private static WebDriver createYandexDriver() {
+//        System.setProperty("webdriver.chrome.driver",
+//                String.format("%s/%s", System.getenv("C:\\WebDriver\\chromedriver-win64\\chromedriver.exe"),
+//                        System.getenv("C:/WebDriver/chromedriver-win64/chromedriver.exe")));
+//        ChromeOptions options = new ChromeOptions();
+//        options.setBinary(System.getenv("C:/Users/susma/AppData/Local/Yandex/YandexBrowser/Application/browser.exe"));
+//        return new ChromeDriver(options);
     }
 }

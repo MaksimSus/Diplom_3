@@ -23,9 +23,10 @@ public class LoginTests {
     private WebDriver driver;
     private String userEmail;
     private String userPassword = "strongpassword";
+    private String accessToken;
 
     private String generateUniqueEmail() {
-    return "testuser" + System.currentTimeMillis() + "@example.com";
+    return "testlog" + System.currentTimeMillis() + "@log.com";
     }
 
     @Before
@@ -41,56 +42,44 @@ public class LoginTests {
     @After
     @Step("Clean the environment after tests")
     public void tearDown() {
+        if (accessToken != null) {
+            deleteUserViaApi(accessToken);
+        }
         if (driver != null) {
             driver.quit();
         }
-
-        // Удаление тестового пользователя через API
-        deleteUserViaApi(userEmail, userPassword);
     }
 
     @Step("Create a user via API")
     private void createUserViaApi(String email, String password) {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/api";
-
         Response response = given()
                 .header("Content-Type", "application/json")
                 .body("{\"email\":\"" + email + "\",\"password\":\"" + password + "\",\"name\":\"Test User\"}")
                 .when()
                 .post("/auth/register");
 
-        if (response.getStatusCode() != 200) {
-            Allure.step("Ошибка при создании пользователя через API. Код ответа: " + response.getStatusCode());
-            throw new RuntimeException("Не удалось создать пользователя. Код ответа: " + response.getStatusCode());
+        if (response.getStatusCode() == 200) {
+            accessToken = response.jsonPath().getString("accessToken");
+        } else {
+            Allure.step("Error creating user via API.");
+            throw new RuntimeException("Failed to create user. Response code: " + response.getStatusCode());
         }
     }
 
     @Step("Delete a user via API")
-    private void deleteUserViaApi(String email, String password) {
+    private void deleteUserViaApi(String token) {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/api";
-
-        Response loginResponse = given()
-                .header("Content-Type", "application/json")
-                .body(String.format("{\"email\":\"%s\",\"password\":\"%s\"}", email, password))
-                .when()
-                .post("/auth/login");
-
-        if (loginResponse.getStatusCode() == 200) {
-            String accessToken = loginResponse.jsonPath().getString("accessToken");
-
             Response deleteResponse = given()
-                    .header("Authorization", accessToken)
+                    .header("Authorization", token)
                     .when()
                     .delete("/auth/user");
 
             if (deleteResponse.getStatusCode() != 202) {
-                Allure.step("Ошибка при удалении пользователя через API. Код ответа: " + deleteResponse.getStatusCode());
-                throw new RuntimeException("Не удалось удалить пользователя. Код ответа: " + deleteResponse.getStatusCode());
+                Allure.step("Error deleting user via API.");
+                throw new RuntimeException("Failed to delete user. Response code: " + deleteResponse.getStatusCode());
             }
-        } else {
-            Allure.step("Не удалось выполнить вход для удаления пользователя через API. Код ответа: " + loginResponse.getStatusCode());
         }
-    }
 
     @Test
     @DisplayName("Login through 'Login' button on the main page")
@@ -106,7 +95,7 @@ public class LoginTests {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(urlToBe("https://stellarburgers.nomoreparties.site/"));
 
-        assertEquals("После входа пользователь не был перенаправлен на главную страницу.",
+        assertEquals("After logging in, the user was not redirected to the main page.",
                 "https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
     }
 
@@ -124,7 +113,7 @@ public class LoginTests {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(urlToBe("https://stellarburgers.nomoreparties.site/"));
 
-        assertEquals("После входа через форму регистрации пользователь не был перенаправлен на главную страницу.",
+        assertEquals("After logging in through the registration form, the user was not redirected to the main page.",
                 "https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
     }
 
@@ -142,7 +131,7 @@ public class LoginTests {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(urlToBe("https://stellarburgers.nomoreparties.site/"));
 
-        assertEquals("После входа через форму регистрации пользователь не был перенаправлен на главную страницу.",
+        assertEquals("After logging in through the registration form, the user was not redirected to the main page.",
                 "https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
     }
 
@@ -160,7 +149,7 @@ public class LoginTests {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(urlToBe("https://stellarburgers.nomoreparties.site/"));
 
-        assertEquals("После входа через форму регистрации пользователь не был перенаправлен на главную страницу.",
+        assertEquals("After logging in through the registration form, the user was not redirected to the main page.",
                 "https://stellarburgers.nomoreparties.site/", driver.getCurrentUrl());
     }
 }
