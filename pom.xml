@@ -85,11 +85,6 @@
                             <value>${project.build.directory}/allure-results</value>
                         </property>
                     </systemProperties>
-                    <!-- Параллельный запуск тестов -->
-                   <parallel>classes</parallel>
-                    <useUnlimitedThreads>false</useUnlimitedThreads>
-                    <perCoreThreadCount>false</perCoreThreadCount>
-                    <threadCountClasses>2</threadCountClasses>
                 </configuration>
                 <dependencies>
                     <dependency>
